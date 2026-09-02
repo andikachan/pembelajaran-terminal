@@ -1,0 +1,108 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 8 9 10;
+    --foreground: 230 230 230;
+  }
+
+  body {
+    background-color: #08090A;
+    color: #E6E6E6;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  /* Custom terminal scrollbars */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #08090A;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #20252B;
+    border-radius: 2px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #2E353D;
+  }
+}
+
+/* Retro CRT and terminal styling */
+.crt-overlay {
+  pointer-events: none;
+  background: linear-gradient(
+    rgba(18, 16, 16, 0) 50%,
+    rgba(0, 0, 0, 0.25) 50%
+  ),
+  linear-gradient(
+    90deg,
+    rgba(255, 0, 0, 0.03),
+    rgba(0, 255, 0, 0.01),
+    rgba(0, 0, 255, 0.03)
+  );
+  background-size: 100% 3px, 6px 100%;
+}
+
+.terminal-glow-green {
+  text-shadow: 0 0 8px rgba(124, 255, 107, 0.4);
+}
+
+.terminal-glow-amber {
+  text-shadow: 0 0 8px rgba(255, 200, 87, 0.4);
+}
+
+.terminal-glow-cyan {
+  text-shadow: 0 0 8px rgba(78, 226, 236, 0.4);
+}
+
+.terminal-glow-red {
+  text-shadow: 0 0 8px rgba(255, 92, 92, 0.4);
+}
+
+/* Corner bracket styles for authentic HUD cards */
+.hud-corner {
+  position: relative;
+}
+
+.hud-corner::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  width: 6px;
+  height: 6px;
+  border-top: 2px solid #7CFF6B;
+  border-left: 2px solid #7CFF6B;
+  pointer-events: none;
+}
+
+.hud-corner::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  right: -1px;
+  width: 6px;
+  height: 6px;
+  border-bottom: 2px solid #7CFF6B;
+  border-right: 2px solid #7CFF6B;
+  pointer-events: none;
+}
+
+/* Game button styling */
+.btn-game {
+  position: relative;
+  transition: all 0.15s ease-in-out;
+}
+
+.btn-game:active {
+  transform: translateY(1px);
+}
