@@ -49,7 +49,8 @@ export default function MissionDetailPage() {
 
   // Create isolated Virtual File System for this mission
   const [vfs, setVfs] = useState<VirtualFileSystem>(() => new VirtualFileSystem());
-  const [vfsVersion, setVfsVersion] = useState(0);
+  const [treeVersion, setTreeVersion] = useState(0);
+  const [terminalResetKey, setTerminalResetKey] = useState(0);
 
   const [hintsRevealed, setHintsRevealed] = useState<number>(0);
   const [isCompletedModalOpen, setIsCompletedModalOpen] = useState<boolean>(false);
@@ -97,7 +98,7 @@ export default function MissionDetailPage() {
 
     const newVfs = new VirtualFileSystem(baseFs, mission.initialPath || '/home/player');
     setVfs(newVfs);
-    setVfsVersion((v) => v + 1);
+    setTreeVersion((v) => v + 1);
   }, [mission]);
 
   const currentXpReward = useMemo(() => {
@@ -121,7 +122,8 @@ export default function MissionDetailPage() {
     const baseFs = JSON.parse(JSON.stringify(DEFAULT_VFS_ROOT));
     const newVfs = new VirtualFileSystem(baseFs, mission.initialPath || '/home/player');
     setVfs(newVfs);
-    setVfsVersion((v) => v + 1);
+    setTreeVersion((v) => v + 1);
+    setTerminalResetKey((k) => k + 1);
   };
 
   const handleCommandExecution = useCallback(
@@ -273,18 +275,18 @@ export default function MissionDetailPage() {
         {/* CENTER COLUMN: Interactive Terminal (5 cols on lg) */}
         <div className="lg:col-span-5 order-2">
           <Terminal
-            key={`term-${mission.id}-${vfsVersion}`}
+            key={`term-${mission.id}-${terminalResetKey}`}
             vfs={vfs}
             onExecuteCommand={handleCommandExecution}
             initialLines={initialTerminalLines}
-            onVfsChange={() => setVfsVersion((v) => v + 1)}
+            onVfsChange={() => setTreeVersion((v) => v + 1)}
           />
         </div>
 
         {/* RIGHT COLUMN: Virtual Filesystem Observer & Quick Status (3 cols on lg) */}
         <div className="lg:col-span-3 order-3 space-y-4">
           <VirtualFileSystemTree
-            key={`tree-${vfsVersion}`}
+            key={`tree-${treeVersion}`}
             root={vfs.getSnapshot().root}
             currentPath={vfs.getCwd()}
           />

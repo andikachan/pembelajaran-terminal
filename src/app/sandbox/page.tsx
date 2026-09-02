@@ -10,13 +10,15 @@ import { useLanguage } from '@/context/LanguageContext';
 
 export default function SandboxPage() {
   const [vfs, setVfs] = useState<VirtualFileSystem>(() => new VirtualFileSystem());
-  const [vfsVersion, setVfsVersion] = useState(0);
+  const [treeVersion, setTreeVersion] = useState(0);
+  const [terminalResetKey, setTerminalResetKey] = useState(0);
   const { t, language } = useLanguage();
 
   const handleReset = () => {
     const newVfs = new VirtualFileSystem();
     setVfs(newVfs);
-    setVfsVersion((v) => v + 1);
+    setTreeVersion((v) => v + 1);
+    setTerminalResetKey((k) => k + 1);
   };
 
   const initialLines = [
@@ -63,17 +65,17 @@ export default function SandboxPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
         <div className="lg:col-span-8">
           <Terminal
-            key={`sandbox-term-${vfsVersion}`}
+            key={`sandbox-term-${terminalResetKey}`}
             vfs={vfs}
             initialLines={initialLines}
-            onVfsChange={() => setVfsVersion((v) => v + 1)}
+            onVfsChange={() => setTreeVersion((v) => v + 1)}
             className="h-[520px]"
           />
         </div>
 
         <div className="lg:col-span-4 space-y-4">
           <VirtualFileSystemTree
-            key={`sandbox-tree-${vfsVersion}`}
+            key={`sandbox-tree-${treeVersion}`}
             root={vfs.getSnapshot().root}
             currentPath={vfs.getCwd()}
           />
