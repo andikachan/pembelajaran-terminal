@@ -4,9 +4,10 @@ import React, { useEffect } from 'react';
 import confetti from 'canvas-confetti';
 import { Mission, Achievement } from '@/lib/types';
 import { Button } from '@/components/ui/Button';
-import { Trophy, ArrowRight, RotateCcw, CheckCircle2, Award, Zap } from 'lucide-react';
+import { Trophy, ArrowRight, RotateCcw, CheckCircle2, Award, Zap, Terminal } from 'lucide-react';
 import Link from 'next/link';
 import { useLanguage } from '@/context/LanguageContext';
+import { COMMAND_DEBRIEFS } from '@/data/commandDebriefs';
 
 interface MissionSuccessModalProps {
   mission: Mission;
@@ -29,8 +30,9 @@ export function MissionSuccessModal({
   onContinue,
   onReplay,
 }: MissionSuccessModalProps) {
-  const { t, getMissionText, getAchievementText } = useLanguage();
+  const { t, language, getMissionText, getAchievementText } = useLanguage();
   const loc = getMissionText(mission.id);
+  const debrief = COMMAND_DEBRIEFS[language]?.[mission.id] || COMMAND_DEBRIEFS['en']?.[mission.id];
 
   useEffect(() => {
     try {
@@ -45,9 +47,9 @@ export function MissionSuccessModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm animate-fadeIn">
-      <div className="w-full max-w-lg bg-[#0C0F12] border-2 border-[#7CFF6B]/70 p-6 shadow-[0_0_40px_rgba(124,255,107,0.2)] font-mono relative">
+      <div className="w-full max-w-lg bg-[#0C0F12] border-2 border-[#7CFF6B]/70 p-6 shadow-[0_0_40px_rgba(124,255,107,0.2)] font-mono relative max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="text-center space-y-2 mb-6 border-b border-[#1E252D] pb-5">
+        <div className="text-center space-y-2 mb-5 border-b border-[#1E252D] pb-4">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#152317] border border-[#2D5630] text-[#7CFF6B] text-xs font-bold tracking-widest uppercase">
             <CheckCircle2 className="w-4 h-4" />
             <span>{t.missionHUD.commandAccepted}</span>
@@ -63,7 +65,7 @@ export function MissionSuccessModal({
 
         {/* Level Up Banner if applicable */}
         {leveledUp && (
-          <div className="mb-5 p-3 bg-[#241A0B] border border-[#FFC857] text-[#FFC857] flex items-center gap-3 animate-bounce">
+          <div className="mb-4 p-3 bg-[#241A0B] border border-[#FFC857] text-[#FFC857] flex items-center gap-3 animate-bounce">
             <Trophy className="w-6 h-6 text-[#FFC857] shrink-0" />
             <div>
               <div className="text-xs font-bold tracking-widest uppercase">
@@ -71,6 +73,48 @@ export function MissionSuccessModal({
               </div>
               <div className="text-sm font-extrabold text-white">
                 {t.missionHUD.advancedTo} {String(newLevel).padStart(2, '0')}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Tactical Command Debrief Card */}
+        {debrief && (
+          <div className="mb-4 p-3.5 bg-[#080E14] border-2 border-[#1E3B4D] space-y-2 text-xs shadow-[0_0_15px_rgba(78,226,236,0.08)]">
+            <div className="flex items-center justify-between border-b border-[#142633] pb-1.5">
+              <div className="flex items-center gap-1.5 text-[#4EE2EC] text-[11px] font-bold tracking-wider uppercase">
+                <Terminal className="w-3.5 h-3.5" />
+                <span>{language === 'id' ? 'INTELIJEN PERINTAH' : 'COMMAND INTEL'}</span>
+              </div>
+              <span className="text-[11px] text-[#7CFF6B] font-mono px-2 py-0.5 bg-[#0C1A10] border border-[#234E2A] font-bold">
+                $ {debrief.command}
+              </span>
+            </div>
+
+            <div className="space-y-1.5">
+              <div>
+                <span className="text-[10px] text-[#5B7E93] uppercase font-bold tracking-wider mr-1.5">
+                  {language === 'id' ? `Fungsi (${debrief.commandName}):` : `Function (${debrief.commandName}):`}
+                </span>
+                <span className="text-[#F0F4F8] leading-relaxed font-medium">
+                  {debrief.summary}
+                </span>
+              </div>
+
+              <div className="pt-1 border-t border-[#132532]/60">
+                <span className="text-[10px] text-[#5B7E93] uppercase font-bold tracking-wider mr-1.5">
+                  {language === 'id' ? 'Di Dunia Nyata:' : 'In the Real World:'}
+                </span>
+                <span className="text-[#A5B8C8] leading-relaxed text-[11px]">
+                  {debrief.realWorldUse}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2 pt-1 text-[10px]">
+                <span className="text-[#FFC857] font-semibold">{language === 'id' ? 'Sintaks:' : 'Syntax:'}</span>
+                <code className="px-1.5 py-0.5 bg-[#040608] border border-[#182836] text-[#4EE2EC] font-mono">
+                  {debrief.syntax}
+                </code>
               </div>
             </div>
           </div>
