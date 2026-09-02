@@ -86,6 +86,7 @@ export function Terminal({
   const { playKeyClick, playSubmit, playError } = useSound();
 
   const prompt = vfs.getPromptDetails();
+  const displayCwd = prompt.displayPath;
 
   useEffect(() => {
     if (autoFocus && inputRef.current) {
@@ -291,7 +292,7 @@ export function Terminal({
           </div>
           <div className="flex items-center gap-1.5 ml-2 font-mono text-xs text-[#8A9099]">
             <TerminalIcon className="w-3.5 h-3.5 text-[#7CFF6B]" />
-            <span className="font-semibold text-white">terminal@quest:</span>
+            <span className="font-semibold text-white">{prompt.user}@{prompt.hostname}:</span>
             <span className="text-[#FFC857]">{displayCwd}</span>
           </div>
         </div>
