@@ -26,7 +26,29 @@ export interface TerminalOutputLine {
   type: 'command' | 'output' | 'error' | 'success' | 'system' | 'ascii';
   text: string;
   path?: string;
+  user?: string;
+  hostname?: string;
+  symbol?: string;
+  isRoot?: boolean;
   timestamp?: number;
+}
+
+export interface QuizOption {
+  id: string;
+  text: string;
+  isCorrect: boolean;
+}
+
+export interface QuizQuestion {
+  id: string;
+  category: string;
+  level: number;
+  question: string;
+  scenario?: string;
+  commandSnippet?: string;
+  options: QuizOption[];
+  explanation: string;
+  xpReward: number;
 }
 
 export type MissionDifficulty = 'easy' | 'medium' | 'hard' | 'boss';

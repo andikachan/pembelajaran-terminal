@@ -5,6 +5,8 @@ export class VirtualFileSystem {
   private root: VFSNode;
   private currentPath: string; // Absolute path, e.g. "/home/player"
   private user: string = 'player';
+  private hostname: string = 'terminal-quest';
+  private userStack: string[] = [];
   private processes: Array<{ pid: number; tty: string; time: string; cmd: string }> = [
     { pid: 1, tty: '?', time: '00:00:03', cmd: 'systemd' },
     { pid: 142, tty: '?', time: '00:00:01', cmd: 'cron' },
@@ -27,6 +29,53 @@ export class VirtualFileSystem {
 
   public setUser(u: string) {
     this.user = u;
+  }
+
+  public getHostname(): string {
+    return this.hostname;
+  }
+
+  public setHostname(h: string) {
+    this.hostname = h.toLowerCase().replace(/[^a-z0-9_-]/g, '') || 'terminal-quest';
+  }
+
+  public switchUser(targetUser: string) {
+    this.userStack.push(this.user);
+    this.user = targetUser || 'root';
+  }
+
+  public exitUser(): { success: boolean; previousUser?: string } {
+    if (this.userStack.length > 0) {
+      const prev = this.userStack.pop()!;
+      this.user = prev;
+      return { success: true, previousUser: prev };
+    }
+    return { success: false };
+  }
+
+  public getPromptDetails(): {
+    user: string;
+    hostname: string;
+    displayPath: string;
+    symbol: string;
+    isRoot: boolean;
+  } {
+    const isRoot = this.user === 'root';
+    let displayPath = this.currentPath;
+
+    if (this.user === 'player' && displayPath.startsWith('/home/player')) {
+      displayPath = displayPath.replace('/home/player', '~');
+    } else if (isRoot && displayPath === '/root') {
+      displayPath = '~';
+    }
+
+    return {
+      user: this.user,
+      hostname: this.hostname,
+      displayPath,
+      symbol: isRoot ? '#' : '$',
+      isRoot,
+    };
   }
 
   public getSnapshot(): VFSSnapshot {

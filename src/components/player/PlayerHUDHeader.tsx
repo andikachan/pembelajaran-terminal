@@ -7,7 +7,7 @@ import { useGame } from '@/context/GameContext';
 import { useSound } from '@/context/SoundContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { calculateLevel, formatXp } from '@/lib/utils';
-import { Volume2, VolumeX, Flame, Terminal, Map, Trophy, User, Code2, Edit2, Globe } from 'lucide-react';
+import { Volume2, VolumeX, Flame, Terminal, Map, Trophy, User, Code2, Edit2, Globe, HelpCircle } from 'lucide-react';
 import { OperatorIdentityModal } from './OperatorIdentityModal';
 
 export function PlayerHUDHeader() {
@@ -22,6 +22,7 @@ export function PlayerHUDHeader() {
   const navItems = [
     { href: '/play', label: t.common.terminal, icon: Terminal },
     { href: '/missions', label: t.common.worldMap, icon: Map },
+    { href: '/quiz', label: t.common.quiz, icon: HelpCircle },
     { href: '/sandbox', label: t.common.sandbox, icon: Code2 },
     { href: '/leaderboard', label: t.common.leaderboard, icon: Trophy },
     { href: '/profile', label: t.common.profile, icon: User },

@@ -20,6 +20,11 @@ interface TerminalProps {
 const KNOWN_COMMANDS = [
   'pwd',
   'whoami',
+  'id',
+  'su',
+  'sudo',
+  'hostname',
+  'exit',
   'ls',
   'cd',
   'mkdir',
@@ -80,9 +85,7 @@ export function Terminal({
   const containerRef = useRef<HTMLDivElement>(null);
   const { playKeyClick, playSubmit, playError } = useSound();
 
-  const user = vfs.getUser();
-  const cwd = vfs.getCwd();
-  const displayCwd = cwd.replace(`/home/${user}`, '~');
+  const prompt = vfs.getPromptDetails();
 
   useEffect(() => {
     if (autoFocus && inputRef.current) {
@@ -196,6 +199,8 @@ export function Terminal({
 
   const submitCommand = (cmdText: string) => {
     const raw = cmdText.trim();
+    const currentPrompt = vfs.getPromptDetails();
+
     if (!raw) {
       setLines((prev) => [
         ...prev,
@@ -203,7 +208,11 @@ export function Terminal({
           id: `empty-${Date.now()}`,
           type: 'command',
           text: '',
-          path: displayCwd,
+          path: currentPrompt.displayPath,
+          user: currentPrompt.user,
+          hostname: currentPrompt.hostname,
+          symbol: currentPrompt.symbol,
+          isRoot: currentPrompt.isRoot,
         },
       ]);
       setInput('');
@@ -235,7 +244,11 @@ export function Terminal({
       id: `cmd-${Date.now()}`,
       type: 'command',
       text: raw,
-      path: displayCwd,
+      path: currentPrompt.displayPath,
+      user: currentPrompt.user,
+      hostname: currentPrompt.hostname,
+      symbol: currentPrompt.symbol,
+      isRoot: currentPrompt.isRoot,
     };
 
     const newLines: TerminalOutputLine[] = [newCommandEntry];
@@ -313,8 +326,17 @@ export function Terminal({
           <div key={line.id} className="break-words">
             {line.type === 'command' && (
               <div className="flex items-center gap-1.5 text-white">
-                <span className="text-[#7CFF6B] select-none font-bold">
-                  {user}@terminal-quest:<span className="text-[#FFC857]">{line.path || '~'}</span>${' '}
+                <span className="select-none font-bold text-xs sm:text-sm shrink-0">
+                  <span className={line.isRoot ? 'text-[#FF5C5C]' : 'text-[#7CFF6B]'}>
+                    {line.user || 'player'}
+                  </span>
+                  <span className="text-[#626973]">@</span>
+                  <span className="text-[#4EE2EC]">{line.hostname || 'terminal-quest'}</span>
+                  <span className="text-[#73777D]">:</span>
+                  <span className="text-[#FFC857]">{line.path || '~'}</span>
+                  <span className={line.isRoot ? 'text-[#FF5C5C]' : 'text-[#7CFF6B]'}>
+                    {line.symbol || '$'}
+                  </span>{' '}
                 </span>
                 <span className="font-semibold text-[#FFFFFF]">{line.text}</span>
               </div>
@@ -345,8 +367,17 @@ export function Terminal({
         {/* Live Prompt Line */}
         {!readOnly && (
           <div className="flex items-center gap-1.5 pt-1">
-            <span className="text-[#7CFF6B] select-none font-bold shrink-0 text-xs sm:text-sm">
-              {user}@terminal-quest:<span className="text-[#FFC857]">{displayCwd}</span>${' '}
+            <span className="select-none font-bold shrink-0 text-xs sm:text-sm">
+              <span className={prompt.isRoot ? 'text-[#FF5C5C] animate-pulse font-extrabold' : 'text-[#7CFF6B]'}>
+                {prompt.user}
+              </span>
+              <span className="text-[#626973]">@</span>
+              <span className="text-[#4EE2EC]">{prompt.hostname}</span>
+              <span className="text-[#73777D]">:</span>
+              <span className="text-[#FFC857]">{prompt.displayPath}</span>
+              <span className={prompt.isRoot ? 'text-[#FF5C5C] font-extrabold' : 'text-[#7CFF6B]'}>
+                {prompt.symbol}
+              </span>{' '}
             </span>
             <div className="relative flex-1 flex items-center">
               <input

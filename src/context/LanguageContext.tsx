@@ -11,6 +11,7 @@ import {
   LocalizedLevelText,
   LocalizedAchievementText,
 } from '@/lib/i18n/translations';
+import { LOCALIZED_QUIZZES, LocalizedQuizContent } from '@/data/quizzes';
 
 interface LanguageContextType {
   language: Language;
@@ -20,6 +21,7 @@ interface LanguageContextType {
   getMissionText: (missionId: string) => LocalizedMissionText | undefined;
   getLevelText: (levelId: number) => LocalizedLevelText | undefined;
   getAchievementText: (achievementId: string) => LocalizedAchievementText | undefined;
+  getQuizText: (quizId: string) => LocalizedQuizContent | undefined;
 }
 
 const LanguageContext = createContext<LanguageContextType | null>(null);
@@ -63,6 +65,10 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     return LOCALIZED_ACHIEVEMENTS[language][achievementId] || LOCALIZED_ACHIEVEMENTS['en'][achievementId];
   };
 
+  const getQuizText = (quizId: string): LocalizedQuizContent | undefined => {
+    return LOCALIZED_QUIZZES[language]?.[quizId] || LOCALIZED_QUIZZES['en']?.[quizId];
+  };
+
   return (
     <LanguageContext.Provider
       value={{
@@ -73,6 +79,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
         getMissionText,
         getLevelText,
         getAchievementText,
+        getQuizText,
       }}
     >
       {children}

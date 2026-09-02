@@ -342,6 +342,75 @@ export function executeVirtualCommand(
       result = { output: ' 01:39:20 up 42 days,  3:14,  1 user,  load average: 0.08, 0.03, 0.01', exitCode: 0 };
       break;
 
+    case 'su': {
+      const targetUser = args[0] === '-' ? (args[1] || 'root') : (args[0] || 'root');
+      vfs.switchUser(targetUser);
+      result = {
+        output: targetUser === 'root'
+          ? 'Switched to superuser (root). Prompt switched to #.'
+          : `Switched to user ${targetUser}.`,
+        exitCode: 0,
+      };
+      break;
+    }
+
+    case 'sudo': {
+      if (args.length === 0) {
+        result = { output: 'usage: sudo <command> or sudo su', exitCode: 1 };
+      } else if (args[0] === 'su' || args[0] === '-i' || args[0] === 'bash') {
+        vfs.switchUser('root');
+        result = {
+          output: '[sudo] authenticated. Switched to superuser (root). Prompt switched to #.',
+          exitCode: 0,
+        };
+      } else {
+        // Execute command as root temporarily
+        const originalUser = vfs.getUser();
+        vfs.setUser('root');
+        const subCommand = args.join(' ');
+        const subResult = executeVirtualCommand(subCommand, vfs);
+        vfs.setUser(originalUser);
+        return subResult;
+      }
+      break;
+    }
+
+    case 'exit': {
+      const exitRes = vfs.exitUser();
+      if (exitRes.success) {
+        result = {
+          output: `exit\nlogout: Returned to user ${exitRes.previousUser}. Prompt switched to $.`,
+          exitCode: 0,
+        };
+      } else {
+        result = {
+          output: 'exit: session cannot be terminated. You are at the base login shell.',
+          exitCode: 0,
+        };
+      }
+      break;
+    }
+
+    case 'hostname': {
+      if (args.length > 0) {
+        vfs.setHostname(args[0]);
+        result = { output: `System hostname set to ${vfs.getHostname()}`, exitCode: 0 };
+      } else {
+        result = { output: vfs.getHostname(), exitCode: 0 };
+      }
+      break;
+    }
+
+    case 'id': {
+      const u = vfs.getUser();
+      if (u === 'root') {
+        result = { output: 'uid=0(root) gid=0(root) groups=0(root)', exitCode: 0 };
+      } else {
+        result = { output: `uid=1000(${u}) gid=1000(${u}) groups=1000(${u}),4(adm),24(cdrom),27(sudo),30(dip)`, exitCode: 0 };
+      }
+      break;
+    }
+
     case 'reset':
       vfs.reset();
       result = { output: 'Filesystem state reset to factory defaults.', exitCode: 0 };
