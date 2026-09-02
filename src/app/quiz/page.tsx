@@ -23,12 +23,22 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
+function shuffleArray<T>(array: T[]): T[] {
+  const arr = [...array];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
 export default function QuizPage() {
   const router = useRouter();
   const { profile, recordCommandExecution } = useGame();
   const { playKeyClick, playSubmit, playSuccess, playError } = useSound();
   const { t, language, getQuizText } = useLanguage();
 
+  const [questions, setQuestions] = useState(() => shuffleArray(QUIZ_QUESTIONS));
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
   const [isAnswerChecked, setIsAnswerChecked] = useState(false);
@@ -39,7 +49,6 @@ export default function QuizPage() {
   const [isFinished, setIsFinished] = useState(false);
   const [isGameOver, setIsGameOver] = useState(false);
 
-  const questions = QUIZ_QUESTIONS;
   const currentQuestion = questions[currentIndex];
   const locQuiz = getQuizText(currentQuestion?.id);
 
@@ -48,11 +57,11 @@ export default function QuizPage() {
   const activeExplanation = locQuiz?.explanation || currentQuestion?.explanation;
   const activeOptions = useMemo(() => {
     if (!currentQuestion) return [];
-    if (locQuiz?.options && locQuiz.options.length > 0) {
-      return locQuiz.options;
-    }
-    return currentQuestion.options;
-  }, [currentQuestion, locQuiz]);
+    const baseOptions = (locQuiz?.options && locQuiz.options.length > 0)
+      ? locQuiz.options
+      : currentQuestion.options;
+    return shuffleArray(baseOptions);
+  }, [currentQuestion?.id, language]);
 
   const selectedOption = useMemo(() => {
     return activeOptions.find((o) => o.id === selectedOptionId);
@@ -148,6 +157,7 @@ export default function QuizPage() {
   };
 
   const handleRestart = () => {
+    setQuestions(shuffleArray(QUIZ_QUESTIONS));
     setCurrentIndex(0);
     setSelectedOptionId(null);
     setIsAnswerChecked(false);
