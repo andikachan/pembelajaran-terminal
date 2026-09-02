@@ -5,24 +5,26 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useGame } from '@/context/GameContext';
 import { useSound } from '@/context/SoundContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { calculateLevel, formatXp } from '@/lib/utils';
-import { Volume2, VolumeX, Flame, Terminal, Map, Trophy, User, Code2, Edit2 } from 'lucide-react';
+import { Volume2, VolumeX, Flame, Terminal, Map, Trophy, User, Code2, Edit2, Globe } from 'lucide-react';
 import { OperatorIdentityModal } from './OperatorIdentityModal';
 
 export function PlayerHUDHeader() {
   const pathname = usePathname();
   const { profile } = useGame();
   const { soundEnabled, toggleSound } = useSound();
+  const { language, toggleLanguage, t } = useLanguage();
   const [showIdentityModal, setShowIdentityModal] = useState(false);
 
   const levelStats = calculateLevel(profile?.xp || 0);
 
   const navItems = [
-    { href: '/play', label: 'TERMINAL', icon: Terminal },
-    { href: '/missions', label: 'WORLD MAP', icon: Map },
-    { href: '/sandbox', label: 'SANDBOX', icon: Code2 },
-    { href: '/leaderboard', label: 'LEADERBOARD', icon: Trophy },
-    { href: '/profile', label: 'PROFILE', icon: User },
+    { href: '/play', label: t.common.terminal, icon: Terminal },
+    { href: '/missions', label: t.common.worldMap, icon: Map },
+    { href: '/sandbox', label: t.common.sandbox, icon: Code2 },
+    { href: '/leaderboard', label: t.common.leaderboard, icon: Trophy },
+    { href: '/profile', label: t.common.profile, icon: User },
   ];
 
   return (
@@ -70,12 +72,12 @@ export function PlayerHUDHeader() {
           </nav>
 
           {/* Player HUD Stats Bar */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-2 sm:gap-2.5">
             {/* Operator Callsign */}
             <button
               onClick={() => setShowIdentityModal(true)}
               className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 bg-[#101317] border border-[#232931] hover:border-[#7CFF6B]/50 transition-colors font-mono text-xs text-[#C8CDD3]"
-              title="Change operator callsign"
+              title={language === 'id' ? 'Ubah callsign operator' : 'Change operator callsign'}
             >
               <span className="w-1.5 h-1.5 bg-[#7CFF6B] rounded-full animate-pulse" />
               <span className="text-[#888E96]">OP:</span>
@@ -92,7 +94,7 @@ export function PlayerHUDHeader() {
             </div>
 
             {/* XP Mini Bar */}
-            <div className="hidden md:flex flex-col gap-0.5 min-w-[110px]">
+            <div className="hidden md:flex flex-col gap-0.5 min-w-[100px]">
               <div className="flex items-center justify-between font-mono text-[10px] text-[#73777D]">
                 <span>XP</span>
                 <span className="text-[#E6E6E6]">{formatXp(profile?.xp || 0)}</span>
@@ -108,11 +110,23 @@ export function PlayerHUDHeader() {
             {/* Streak */}
             <div
               className="flex items-center gap-1 px-2 py-1 bg-[#1A140B] border border-[#423114] text-[#FFC857] font-mono text-xs"
-              title={`${profile?.streak || 1} Day Learning Streak`}
+              title={`${profile?.streak || 1} ${t.common.days} ${t.common.streak}`}
             >
               <Flame className="w-3.5 h-3.5 text-[#FFC857]" />
               <span className="font-bold">{profile?.streak || 1}</span>
             </div>
+
+            {/* Language Selector Toggle [ ID | EN ] */}
+            <button
+              onClick={toggleLanguage}
+              className="flex items-center gap-1 px-2 py-1 bg-[#101317] border border-[#2B3542] hover:border-[#7CFF6B] transition-colors font-mono text-xs text-[#E6E6E6] cursor-pointer select-none"
+              title={language === 'id' ? 'Switch to English' : 'Ganti ke Bahasa Indonesia'}
+            >
+              <Globe className="w-3 h-3 text-[#4EE2EC]" />
+              <span className={language === 'id' ? 'text-[#7CFF6B] font-bold' : 'text-[#616873]'}>ID</span>
+              <span className="text-[#414752]">/</span>
+              <span className={language === 'en' ? 'text-[#7CFF6B] font-bold' : 'text-[#616873]'}>EN</span>
+            </button>
 
             {/* Sound Toggle */}
             <button

@@ -10,13 +10,14 @@ import { validateMissionCommand } from '@/lib/validators/missionValidator';
 import { CommandExecutionResult } from '@/lib/vfs/commandInterpreter';
 import { useGame } from '@/context/GameContext';
 import { useSound } from '@/context/SoundContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { MissionHUD } from '@/components/mission/MissionHUD';
 import { Terminal } from '@/components/terminal/Terminal';
 import { VirtualFileSystemTree } from '@/components/terminal/VirtualFileSystemTree';
 import { MissionSuccessModal } from '@/components/mission/MissionSuccessModal';
 import { BossVictoryBanner } from '@/components/mission/BossVictoryBanner';
 import { Achievement, TerminalOutputLine } from '@/lib/types';
-import { ArrowLeft, Lock, Trophy, Zap, Compass, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Lock, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 
 export default function MissionDetailPage() {
@@ -32,6 +33,7 @@ export default function MissionDetailPage() {
     getNextMissionId,
   } = useGame();
   const { playSuccess, playBossVictory } = useSound();
+  const { t, getMissionText, getLevelText } = useLanguage();
 
   const mission = useMemo(() => {
     return MISSIONS.find((m) => m.id === missionId);
@@ -41,6 +43,9 @@ export default function MissionDetailPage() {
     if (!mission) return undefined;
     return LEVELS.find((l) => l.id === mission.levelId);
   }, [mission]);
+
+  const locMission = getMissionText(missionId);
+  const locLevel = level ? getLevelText(level.id) : undefined;
 
   // Create isolated Virtual File System for this mission
   const [vfs, setVfs] = useState<VirtualFileSystem>(() => new VirtualFileSystem());
@@ -58,12 +63,10 @@ export default function MissionDetailPage() {
   useEffect(() => {
     if (!mission) return;
 
-    // Reset hints
     setHintsRevealed(0);
     setIsCompletedModalOpen(false);
     setIsBossBannerOpen(false);
 
-    // Build custom VFS root if specified
     const baseFs = JSON.parse(JSON.stringify(DEFAULT_VFS_ROOT));
 
     if (mission.customInitialFs) {
@@ -109,7 +112,7 @@ export default function MissionDetailPage() {
     return xp;
   }, [mission, hintsRevealed]);
 
-  const handleRevealHint = (hintIndex: number) => {
+  const handleRevealHint = () => {
     setHintsRevealed((prev) => Math.min(mission?.hints.length || 0, prev + 1));
   };
 
@@ -173,7 +176,7 @@ export default function MissionDetailPage() {
           The requested mission coordinate does not exist in registry.
         </p>
         <Link href="/missions" className="text-xs text-[#7CFF6B] underline">
-          « Return to Campaign Map
+          « {t.common.returnToMap}
         </Link>
       </div>
     );
@@ -190,30 +193,33 @@ export default function MissionDetailPage() {
           <Lock className="w-6 h-6" />
         </div>
         <h2 className="text-base font-bold text-white uppercase tracking-wider">
-          CLASSIFIED SECTOR: LOCKED
+          {t.common.locked}
         </h2>
         <p className="text-xs text-[#8A9099] leading-relaxed">
-          You lack operational clearance for this mission. Complete prior training objectives in Level {mission.levelId} to unlock this sector.
+          Level {mission.levelId}
         </p>
         <Link href="/missions">
           <button className="px-4 py-2 bg-[#12161A] border border-[#2B3542] text-[#7CFF6B] hover:border-[#7CFF6B] text-xs font-mono tracking-wider transition-colors mt-2">
-            « BACK TO WORLD MAP
+            « {t.common.backToMap}
           </button>
         </Link>
       </div>
     );
   }
 
+  const title = locMission?.title || mission.title;
+  const objective = locMission?.objective || mission.objective;
+
   const initialTerminalLines: TerminalOutputLine[] = [
     {
       id: 'brief-1',
       type: 'system',
-      text: `SESSION INITIATED // MISSION ${String(mission.order).padStart(2, '0')}: ${mission.title.toUpperCase()}`,
+      text: `SESSION INITIATED // MISSION ${String(mission.order).padStart(2, '0')}: ${title.toUpperCase()}`,
     },
     {
       id: 'brief-2',
       type: 'system',
-      text: `OBJECTIVE: ${mission.objective}`,
+      text: `OBJECTIVE: ${objective}`,
     },
   ];
 
@@ -227,23 +233,23 @@ export default function MissionDetailPage() {
             className="flex items-center gap-1.5 text-[#888E99] hover:text-[#7CFF6B] transition-colors"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>CAMPAIGN MAP</span>
+            <span>{t.common.backToMap}</span>
           </Link>
           <span>/</span>
-          <span className="text-[#A5ABB5]">LEVEL {mission.levelId}</span>
+          <span className="text-[#A5ABB5]">{locLevel?.name || `LEVEL ${mission.levelId}`}</span>
           <span>/</span>
-          <span className="text-[#FFC857] font-semibold">{mission.title}</span>
+          <span className="text-[#FFC857] font-semibold">{title}</span>
         </div>
 
         <div className="hidden sm:flex items-center gap-3 text-[11px]">
-          <span className="text-[#555B64]">STATUS:</span>
+          <span className="text-[#555B64]">{t.common.status}:</span>
           {isMissionCompleted ? (
             <span className="text-[#7CFF6B] flex items-center gap-1 font-bold">
-              <CheckCircle className="w-3 h-3" /> CLEARED
+              <CheckCircle className="w-3 h-3" /> {t.common.cleared}
             </span>
           ) : (
             <span className="text-[#FFC857] flex items-center gap-1 font-bold">
-              <span className="w-1.5 h-1.5 bg-[#FFC857] rounded-full animate-pulse" /> IN PROGRESS
+              <span className="w-1.5 h-1.5 bg-[#FFC857] rounded-full animate-pulse" /> {t.common.inProgress}
             </span>
           )}
         </div>
@@ -264,7 +270,7 @@ export default function MissionDetailPage() {
           />
         </div>
 
-        {/* CENTER COLUMN: Interactive Terminal (8 cols on lg, or 5 when VFS is active) */}
+        {/* CENTER COLUMN: Interactive Terminal (5 cols on lg) */}
         <div className="lg:col-span-5 order-2">
           <Terminal
             key={`term-${mission.id}-${vfsVersion}`}
@@ -289,18 +295,18 @@ export default function MissionDetailPage() {
               OPERATIONAL TELEMETRY
             </div>
             <div className="flex items-center justify-between text-[#8A9099]">
-              <span>Commands Sent:</span>
+              <span>{t.common.commandsSent}:</span>
               <span className="text-white font-bold">{profile?.commandCount || 0}</span>
             </div>
             <div className="flex items-center justify-between text-[#8A9099]">
-              <span>Missions Done:</span>
+              <span>{t.common.missionsDone}:</span>
               <span className="text-[#7CFF6B] font-bold">
                 {profile?.completedMissions.length || 0} / {MISSIONS.length}
               </span>
             </div>
             <div className="flex items-center justify-between text-[#8A9099]">
-              <span>Active Streak:</span>
-              <span className="text-[#FFC857] font-bold">{profile?.streak || 1} Days</span>
+              <span>{t.common.activeStreak}:</span>
+              <span className="text-[#FFC857] font-bold">{profile?.streak || 1} {t.common.days}</span>
             </div>
           </div>
         </div>

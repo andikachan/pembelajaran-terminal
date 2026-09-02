@@ -3,12 +3,14 @@
 import React from 'react';
 import Link from 'next/link';
 import { useGame } from '@/context/GameContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { LEVELS } from '@/data/levels';
 import { MISSIONS } from '@/data/missions';
-import { Check, Lock, Play, ShieldAlert, ChevronRight } from 'lucide-react';
+import { Check, Lock, ShieldAlert, ChevronRight } from 'lucide-react';
 
 export function WorldMap() {
   const { profile, isMissionUnlocked, isLevelUnlocked } = useGame();
+  const { t, getLevelText, getMissionText } = useLanguage();
 
   return (
     <div className="w-full max-w-5xl mx-auto space-y-8 font-mono pb-12">
@@ -18,26 +20,26 @@ export function WorldMap() {
           <div>
             <div className="flex items-center gap-2 text-[10px] text-[#7CFF6B] uppercase tracking-widest mb-1">
               <span className="w-2 h-2 bg-[#7CFF6B] inline-block animate-pulse" />
-              <span>TERMINAL ACADEMY CAMPAIGN MAP</span>
+              <span>{t.map.tag}</span>
             </div>
             <h1 className="text-xl sm:text-2xl font-bold text-white tracking-wide">
-              OPERATIONAL SECTORS
+              {t.map.title}
             </h1>
             <p className="text-xs text-[#8A909A] mt-1 max-w-xl">
-              Traverse through the tactical sectors. Clear baseline missions to unlock advanced file system and process operations.
+              {t.map.subtitle}
             </p>
           </div>
 
           <div className="flex items-center gap-4 bg-[#0F1317] border border-[#212832] px-4 py-2.5 shrink-0">
             <div className="text-center">
-              <div className="text-[10px] text-[#73777D]">MISSIONS</div>
+              <div className="text-[10px] text-[#73777D]">{t.map.missionsLabel}</div>
               <div className="text-sm font-bold text-white">
                 {profile?.completedMissions.length || 0} / {MISSIONS.length}
               </div>
             </div>
             <div className="w-px h-7 bg-[#232932]" />
             <div className="text-center">
-              <div className="text-[10px] text-[#73777D]">CLEARED</div>
+              <div className="text-[10px] text-[#73777D]">{t.map.clearedLabel}</div>
               <div className="text-sm font-bold text-[#7CFF6B]">
                 {Math.round(((profile?.completedMissions.length || 0) / MISSIONS.length) * 100)}%
               </div>
@@ -48,13 +50,14 @@ export function WorldMap() {
 
       {/* Campaign Levels / Sectors Stack */}
       <div className="space-y-10">
-        {LEVELS.map((level, levelIndex) => {
+        {LEVELS.map((level) => {
           const levelMissions = MISSIONS.filter((m) => m.levelId === level.id);
           const levelUnlocked = isLevelUnlocked(level.id);
           const completedInLevel = levelMissions.filter(
             (m) => profile?.completedMissions.includes(m.id)
           ).length;
           const levelProgress = Math.round((completedInLevel / levelMissions.length) * 100);
+          const locLevel = getLevelText(level.id);
 
           return (
             <div
@@ -80,21 +83,21 @@ export function WorldMap() {
                   <div>
                     <div className="flex items-center gap-2">
                       <h2 className="text-sm font-bold text-white tracking-wider">
-                        {level.name}
+                        {locLevel?.name || level.name}
                       </h2>
                       {!levelUnlocked && (
                         <span className="flex items-center gap-1 text-[10px] text-[#FF5C5C] border border-[#521C1C] px-1.5 py-0.2">
-                          <Lock className="w-2.5 h-2.5" /> LOCKED
+                          <Lock className="w-2.5 h-2.5" /> {t.common.locked}
                         </span>
                       )}
                     </div>
-                    <p className="text-[11px] text-[#73777D]">{level.subtitle}</p>
+                    <p className="text-[11px] text-[#73777D]">{locLevel?.subtitle || level.subtitle}</p>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-3 text-xs">
                   <span className="text-[#89909B] text-[11px]">
-                    Progress: {completedInLevel}/{levelMissions.length}
+                    {t.common.missionsDone}: {completedInLevel}/{levelMissions.length}
                   </span>
                   <div className="w-24 h-1.5 bg-[#14181D] border border-[#242C36] overflow-hidden">
                     <div
@@ -110,20 +113,23 @@ export function WorldMap() {
 
               {/* Mission Nodes Grid / Circuit Map */}
               <div className="p-4 sm:p-6 relative">
-                {/* SVG Connecting Circuit Trace Background */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 relative z-10">
                   {levelMissions.map((mission) => {
                     const unlocked = isMissionUnlocked(mission.id);
                     const completed = profile?.completedMissions.includes(mission.id);
                     const isBoss = mission.isBoss;
+                    const locMission = getMissionText(mission.id);
 
                     return (
                       <MissionNodeCard
                         key={mission.id}
                         mission={mission}
+                        title={locMission?.title || mission.title}
+                        objective={locMission?.objective || mission.objective}
                         unlocked={unlocked}
                         completed={completed}
                         isBoss={isBoss}
+                        t={t}
                       />
                     );
                   })}
@@ -139,14 +145,20 @@ export function WorldMap() {
 
 function MissionNodeCard({
   mission,
+  title,
+  objective,
   unlocked,
   completed,
   isBoss,
+  t,
 }: {
   mission: any;
+  title: string;
+  objective: string;
   unlocked: boolean;
   completed?: boolean;
   isBoss?: boolean;
+  t: any;
 }) {
   const content = (
     <div
@@ -169,11 +181,11 @@ function MissionNodeCard({
           <div className="flex items-center gap-1.5">
             {completed ? (
               <span className="flex items-center gap-1 text-[10px] text-[#7CFF6B] font-bold">
-                <Check className="w-3 h-3" /> DONE
+                <Check className="w-3 h-3" /> {t.common.cleared}
               </span>
             ) : unlocked ? (
               <span className="flex items-center gap-1 text-[10px] text-[#FFC857] font-bold">
-                <span className="w-1.5 h-1.5 bg-[#FFC857] rounded-full animate-pulse" /> READY
+                <span className="w-1.5 h-1.5 bg-[#FFC857] rounded-full animate-pulse" /> {t.common.ready}
               </span>
             ) : (
               <span className="flex items-center gap-1 text-[10px] text-[#555B64]">
@@ -195,11 +207,11 @@ function MissionNodeCard({
           }`}
         >
           {isBoss && <ShieldAlert className="w-3.5 h-3.5 text-[#FF5C5C] shrink-0" />}
-          <span className="truncate">{mission.title}</span>
+          <span className="truncate">{title}</span>
         </h3>
 
         <p className="text-[11px] text-[#7D848F] line-clamp-2 mt-1 leading-snug">
-          {mission.objective}
+          {objective}
         </p>
       </div>
 
@@ -208,7 +220,7 @@ function MissionNodeCard({
 
         {unlocked && (
           <span className="flex items-center gap-1 text-[#7CFF6B] group-hover:translate-x-0.5 transition-transform font-bold">
-            <span>ENTER</span>
+            <span>{t.common.enter}</span>
             <ChevronRight className="w-3 h-3" />
           </span>
         )}

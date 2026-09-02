@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useGame } from '@/context/GameContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { ACHIEVEMENTS } from '@/data/achievements';
 import { MISSIONS } from '@/data/missions';
 import { calculateLevel, formatXp } from '@/lib/utils';
@@ -10,20 +11,19 @@ import { OperatorIdentityModal } from '@/components/player/OperatorIdentityModal
 import { Button } from '@/components/ui/Button';
 import {
   User,
-  Shield,
   Zap,
   Flame,
   Award,
   Terminal,
   RotateCcw,
   CheckCircle2,
-  Calendar,
   Edit2,
   Download,
 } from 'lucide-react';
 
 export default function ProfilePage() {
   const { profile, resetProgress } = useGame();
+  const { t, language } = useLanguage();
   const [showIdentityModal, setShowIdentityModal] = useState(false);
   const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
 
@@ -58,7 +58,7 @@ export default function ProfilePage() {
             <div className="space-y-1 min-w-0">
               <div className="flex items-center gap-2">
                 <span className="text-[10px] text-[#73777D] tracking-widest uppercase">
-                  OPERATOR CALLSIGN
+                  {t.profile.callsignLabel}
                 </span>
                 <button
                   onClick={() => setShowIdentityModal(true)}
@@ -86,7 +86,7 @@ export default function ProfilePage() {
           {/* Level Badge & XP Gauge */}
           <div className="bg-[#0E1216] border border-[#232932] p-4 min-w-[240px] space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs text-[#73777D] font-bold">OPERATOR RANK</span>
+              <span className="text-xs text-[#73777D] font-bold">{t.profile.rankLabel}</span>
               <span className="text-xs text-[#FFC857] font-bold">
                 LEVEL {String(levelStats.level).padStart(2, '0')}
               </span>
@@ -100,7 +100,7 @@ export default function ProfilePage() {
             </div>
 
             <div className="flex items-center justify-between text-[11px] text-[#8A919C]">
-              <span>Current Level XP</span>
+              <span>{t.profile.currentLevelXp}</span>
               <span className="font-bold text-white">
                 {formatXp(levelStats.currentLevelXp)} / {formatXp(levelStats.nextLevelXp)}
               </span>
@@ -120,47 +120,47 @@ export default function ProfilePage() {
         <div className="p-4 bg-[#0A0C0E] border border-[#1C2128] space-y-1">
           <div className="flex items-center gap-1.5 text-[10px] text-[#73777D] uppercase tracking-wider">
             <Zap className="w-3.5 h-3.5 text-[#7CFF6B]" />
-            <span>TOTAL XP</span>
+            <span>{t.profile.totalXp}</span>
           </div>
           <div className="text-xl font-bold text-white">
             {formatXp(profile?.xp || 0)}
           </div>
-          <div className="text-[10px] text-[#555B64]">Accumulated score</div>
+          <div className="text-[10px] text-[#555B64]">{t.profile.accumulatedScore}</div>
         </div>
 
         <div className="p-4 bg-[#0A0C0E] border border-[#1C2128] space-y-1">
           <div className="flex items-center gap-1.5 text-[10px] text-[#73777D] uppercase tracking-wider">
             <CheckCircle2 className="w-3.5 h-3.5 text-[#4EE2EC]" />
-            <span>MISSIONS CLEARED</span>
+            <span>{t.profile.missionsCleared}</span>
           </div>
           <div className="text-xl font-bold text-white">
             {missionsDone} / {totalMissions}
           </div>
           <div className="text-[10px] text-[#555B64]">
-            {Math.round((missionsDone / totalMissions) * 100)}% Academy Completed
+            {Math.round((missionsDone / totalMissions) * 100)}% {t.profile.academyCompleted}
           </div>
         </div>
 
         <div className="p-4 bg-[#0A0C0E] border border-[#1C2128] space-y-1">
           <div className="flex items-center gap-1.5 text-[10px] text-[#73777D] uppercase tracking-wider">
             <Flame className="w-3.5 h-3.5 text-[#FFC857]" />
-            <span>STATION STREAK</span>
+            <span>{t.profile.stationStreak}</span>
           </div>
           <div className="text-xl font-bold text-white">
-            {profile?.streak || 1} Days
+            {profile?.streak || 1} {t.common.days}
           </div>
-          <div className="text-[10px] text-[#555B64]">Continuous training</div>
+          <div className="text-[10px] text-[#555B64]">{t.profile.continuousTraining}</div>
         </div>
 
         <div className="p-4 bg-[#0A0C0E] border border-[#1C2128] space-y-1">
           <div className="flex items-center gap-1.5 text-[10px] text-[#73777D] uppercase tracking-wider">
             <Terminal className="w-3.5 h-3.5 text-[#B388FF]" />
-            <span>COMMANDS FIRED</span>
+            <span>{t.profile.commandsFired}</span>
           </div>
           <div className="text-xl font-bold text-white">
             {profile?.commandCount || 0}
           </div>
-          <div className="text-[10px] text-[#555B64]">Shell executions logged</div>
+          <div className="text-[10px] text-[#555B64]">{t.profile.shellLogged}</div>
         </div>
       </div>
 
@@ -170,11 +170,11 @@ export default function ProfilePage() {
           <div className="flex items-center gap-2">
             <Award className="w-4 h-4 text-[#FFC857]" />
             <h2 className="text-sm font-bold text-white tracking-wider uppercase">
-              COLLECTIBLE TROPHIES & BADGES ({unlockedCount}/{ACHIEVEMENTS.length})
+              {t.profile.trophiesTitle} ({unlockedCount}/{ACHIEVEMENTS.length})
             </h2>
           </div>
           <span className="text-[11px] text-[#868C96]">
-            {Math.round((unlockedCount / ACHIEVEMENTS.length) * 100)}% Unlocked
+            {Math.round((unlockedCount / ACHIEVEMENTS.length) * 100)}% {t.profile.unlocked}
           </span>
         </div>
 
@@ -196,17 +196,17 @@ export default function ProfilePage() {
       <div className="p-4 bg-[#0B0D0F] border border-[#1D2228] flex flex-col sm:flex-row items-center justify-between gap-3">
         <div>
           <h3 className="text-xs font-bold text-white uppercase tracking-wider">
-            OPERATOR DATA BACKUP & RECOVERY
+            {t.profile.backupTitle}
           </h3>
           <p className="text-[11px] text-[#73777D] mt-0.5">
-            Export session progress JSON or reset the simulator state to start fresh.
+            {t.profile.backupDesc}
           </p>
         </div>
 
         <div className="flex items-center gap-2">
           <Button variant="secondary" size="sm" onClick={handleExportData}>
             <Download className="w-3.5 h-3.5" />
-            <span>EXPORT SAVE</span>
+            <span>{t.profile.exportSave}</span>
           </Button>
 
           <Button
@@ -215,7 +215,7 @@ export default function ProfilePage() {
             onClick={() => setIsResetConfirmOpen(true)}
           >
             <RotateCcw className="w-3.5 h-3.5" />
-            <span>RESET PROGRESS</span>
+            <span>{t.profile.resetProgress}</span>
           </Button>
         </div>
       </div>
@@ -225,10 +225,10 @@ export default function ProfilePage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
           <div className="w-full max-w-md bg-[#0F0808] border-2 border-[#FF5C5C] p-6 space-y-4">
             <h3 className="text-sm font-bold text-[#FF5C5C] uppercase tracking-wider">
-              CONFIRM SIMULATOR RESET
+              {t.profile.confirmResetTitle}
             </h3>
             <p className="text-xs text-[#D9B5B5] leading-relaxed">
-              This action will reset your missions, achievements, and XP counters back to zero. This cannot be undone.
+              {t.profile.confirmResetDesc}
             </p>
             <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#331414]">
               <Button
@@ -236,7 +236,7 @@ export default function ProfilePage() {
                 size="sm"
                 onClick={() => setIsResetConfirmOpen(false)}
               >
-                CANCEL
+                {t.common.cancel}
               </Button>
               <Button
                 variant="danger"
@@ -246,7 +246,7 @@ export default function ProfilePage() {
                   setIsResetConfirmOpen(false);
                 }}
               >
-                CONFIRM WIPE
+                {t.profile.confirmWipe}
               </Button>
             </div>
           </div>

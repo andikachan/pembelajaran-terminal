@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSound } from '@/context/SoundContext';
 import { useGame } from '@/context/GameContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { Terminal, Shield, ArrowRight, Play, Map, Trophy, Compass, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 
@@ -11,18 +12,13 @@ export default function HomePage() {
   const router = useRouter();
   const { playKeyClick, playSubmit, playSuccess } = useSound();
   const { profile } = useGame();
+  const { t, language } = useLanguage();
 
   const [bootStep, setBootStep] = useState<number>(0);
   const [typedCommand, setTypedCommand] = useState<string>('');
   const [isStarting, setIsStarting] = useState<boolean>(false);
 
-  const bootLogs = [
-    'initializing terminal quest microkernel...',
-    'mounting virtual root filesystem [ext4]...',
-    'loading command dictionary (pwd, ls, cd, grep, find, ps)...',
-    'verifying operator access credentials...',
-    'subsystem online. ready.',
-  ];
+  const bootLogs = t.boot.logs;
 
   // Progressive fast boot animation (2-3 seconds)
   useEffect(() => {
@@ -33,14 +29,13 @@ export default function HomePage() {
       }, 450);
       return () => clearTimeout(timer);
     }
-  }, [bootStep, playKeyClick]);
+  }, [bootStep, bootLogs.length, playKeyClick]);
 
   const handleStartMission = () => {
     if (isStarting) return;
     setIsStarting(true);
     playSubmit();
 
-    // Type animation for "boot terminal_quest --mission=01"
     const targetText = 'boot terminal_quest --init-training';
     let charIdx = 0;
 
@@ -83,7 +78,7 @@ export default function HomePage() {
               onClick={handleSkipBoot}
               className="text-[10px] text-[#73777D] hover:text-[#7CFF6B] uppercase tracking-wider transition-colors"
             >
-              [ SKIP BOOT ]
+              [ {t.boot.skip} ]
             </button>
           )}
         </div>
@@ -112,10 +107,10 @@ export default function HomePage() {
             {bootStep >= bootLogs.length && (
               <div className="pt-4 space-y-3 animate-fadeIn">
                 <div className="text-white text-base sm:text-lg font-bold tracking-wider">
-                  WELCOME, OPERATOR.
+                  {t.boot.welcome}
                 </div>
                 <p className="text-[#A2A8B3] text-xs sm:text-sm leading-relaxed max-w-lg">
-                  Your Linux terminal journey begins here. Learn navigation, file manipulation, pattern extraction, and system daemons through hands-on simulated missions.
+                  {t.boot.tagline}
                 </p>
 
                 {isStarting && (
@@ -137,13 +132,13 @@ export default function HomePage() {
                 className="w-full sm:w-auto px-6 py-3 bg-[#132216] border-2 border-[#7CFF6B] text-[#7CFF6B] hover:bg-[#1B331F] hover:shadow-[0_0_20px_rgba(124,255,107,0.3)] transition-all font-mono font-bold text-sm tracking-wider flex items-center justify-center gap-2 group cursor-pointer"
               >
                 <Play className="w-4 h-4 fill-current group-hover:translate-x-0.5 transition-transform" />
-                <span>START MISSION 01</span>
+                <span>{t.boot.startMission}</span>
               </button>
 
               <Link href="/missions" className="w-full sm:w-auto">
                 <button className="w-full sm:w-auto px-5 py-3 bg-[#101317] border border-[#262E38] text-[#C4C9D1] hover:text-white hover:border-[#3C4754] transition-all font-mono text-sm tracking-wider flex items-center justify-center gap-2 cursor-pointer">
                   <Map className="w-4 h-4 text-[#FFC857]" />
-                  <span>CAMPAIGN MAP</span>
+                  <span>{t.boot.campaignMap}</span>
                 </button>
               </Link>
             </div>
@@ -152,7 +147,7 @@ export default function HomePage() {
           {bootStep < bootLogs.length && (
             <div className="pt-4 flex items-center gap-2 text-[#7CFF6B] text-xs">
               <span className="animate-blink">█</span>
-              <span>SYNCHRONIZING ENVIRONMENT...</span>
+              <span>{t.boot.synchronizing}</span>
             </div>
           )}
         </div>
@@ -168,19 +163,19 @@ export default function HomePage() {
       <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-2xl w-full text-[11px] font-mono">
         <div className="p-2.5 bg-[#0C0E11] border border-[#1C2229] text-[#868C96] flex items-center gap-2">
           <Terminal className="w-3.5 h-3.5 text-[#7CFF6B] shrink-0" />
-          <span>Real Sandbox VFS</span>
+          <span>{t.boot.featureVFS}</span>
         </div>
         <div className="p-2.5 bg-[#0C0E11] border border-[#1C2229] text-[#868C96] flex items-center gap-2">
           <Sparkles className="w-3.5 h-3.5 text-[#FFC857] shrink-0" />
-          <span>20 Progressive Ops</span>
+          <span>{t.boot.featureMissions}</span>
         </div>
         <div className="p-2.5 bg-[#0C0E11] border border-[#1C2229] text-[#868C96] flex items-center gap-2">
           <Trophy className="w-3.5 h-3.5 text-[#4EE2EC] shrink-0" />
-          <span>Global Leaderboard</span>
+          <span>{t.boot.featureLeaderboard}</span>
         </div>
         <div className="p-2.5 bg-[#0C0E11] border border-[#1C2229] text-[#868C96] flex items-center gap-2">
           <Shield className="w-3.5 h-3.5 text-[#FF5C5C] shrink-0" />
-          <span>Boss Challenges</span>
+          <span>{t.boot.featureBoss}</span>
         </div>
       </div>
     </div>

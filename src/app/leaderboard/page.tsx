@@ -2,12 +2,14 @@
 
 import React, { useEffect, useState } from 'react';
 import { useGame } from '@/context/GameContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { LeaderboardEntry } from '@/lib/types';
-import { Trophy, Medal, Flame, Shield, ArrowUpRight, RefreshCw } from 'lucide-react';
+import { Trophy, Flame, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 
 export default function LeaderboardPage() {
   const { profile } = useGame();
+  const { t, language } = useLanguage();
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -38,13 +40,13 @@ export default function LeaderboardPage() {
         <div>
           <div className="flex items-center gap-2 text-[10px] text-[#FFC857] uppercase tracking-widest mb-1">
             <Trophy className="w-3.5 h-3.5" />
-            <span>GLOBAL OPERATOR PROTOCOL</span>
+            <span>{t.leaderboard.tag}</span>
           </div>
           <h1 className="text-xl sm:text-2xl font-bold text-white tracking-wide">
-            STATION LEADERBOARD
+            {t.leaderboard.title}
           </h1>
           <p className="text-xs text-[#8A9099] mt-0.5 max-w-md">
-            Top operators ranked by tactical XP yield, mission clearances, and verified terminal discipline.
+            {t.leaderboard.subtitle}
           </p>
         </div>
 
@@ -56,7 +58,7 @@ export default function LeaderboardPage() {
           className="self-start sm:self-auto"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
-          <span>REFRESH</span>
+          <span>{t.leaderboard.refresh}</span>
         </Button>
       </div>
 
@@ -64,11 +66,11 @@ export default function LeaderboardPage() {
       <div className="bg-[#080A0C] border border-[#1C2128]">
         {/* Table Header */}
         <div className="grid grid-cols-12 px-4 py-2.5 bg-[#0F1216] border-b border-[#1E242B] text-[11px] text-[#73777D] font-bold uppercase tracking-wider">
-          <div className="col-span-2 sm:col-span-1 text-center">RANK</div>
-          <div className="col-span-6 sm:col-span-5">OPERATOR</div>
-          <div className="col-span-2 text-center">LEVEL</div>
-          <div className="hidden sm:block sm:col-span-2 text-center">STREAK</div>
-          <div className="col-span-2 sm:col-span-2 text-right">TOTAL XP</div>
+          <div className="col-span-2 sm:col-span-1 text-center">{t.leaderboard.rank}</div>
+          <div className="col-span-6 sm:col-span-5">{t.leaderboard.operatorCol}</div>
+          <div className="col-span-2 text-center">{t.leaderboard.levelCol}</div>
+          <div className="hidden sm:block sm:col-span-2 text-center">{t.leaderboard.streakCol}</div>
+          <div className="col-span-2 sm:col-span-2 text-right">{t.leaderboard.totalXpCol}</div>
         </div>
 
         {/* Entries */}
@@ -111,12 +113,12 @@ export default function LeaderboardPage() {
                       <span className="truncate">{entry.callsign || entry.username}</span>
                       {isMe && (
                         <span className="text-[9px] bg-[#1B3821] text-[#7CFF6B] border border-[#305C37] px-1 py-0 font-bold shrink-0">
-                          YOU
+                          {t.leaderboard.you}
                         </span>
                       )}
                     </div>
                     <div className="text-[10px] text-[#616773] truncate">
-                      {entry.badge || 'OPERATOR'} • {entry.completedMissionsCount} Missions
+                      {entry.badge || 'OPERATOR'} • {entry.completedMissionsCount} {language === 'id' ? 'Misi' : 'Missions'}
                     </div>
                   </div>
                 </div>
@@ -131,7 +133,7 @@ export default function LeaderboardPage() {
                 {/* Streak */}
                 <div className="hidden sm:flex sm:col-span-2 items-center justify-center gap-1 text-[#C7CCD4]">
                   <Flame className="w-3.5 h-3.5 text-[#FFC857]" />
-                  <span>{entry.streak}d</span>
+                  <span>{entry.streak}{language === 'id' ? 'h' : 'd'}</span>
                 </div>
 
                 {/* Total XP */}

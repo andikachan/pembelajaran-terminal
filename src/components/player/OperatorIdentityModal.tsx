@@ -2,11 +2,13 @@
 
 import React, { useState } from 'react';
 import { useGame } from '@/context/GameContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { Button } from '@/components/ui/Button';
 import { X, UserCheck } from 'lucide-react';
 
 export function OperatorIdentityModal({ onClose }: { onClose: () => void }) {
   const { profile, updateCallsign } = useGame();
+  const { t } = useLanguage();
   const [callsign, setCallsign] = useState(profile?.callsign || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -32,18 +34,18 @@ export function OperatorIdentityModal({ onClose }: { onClose: () => void }) {
         <div className="flex items-center gap-2 mb-4">
           <div className="w-2.5 h-2.5 bg-[#7CFF6B]" />
           <h2 className="font-mono text-sm uppercase tracking-widest text-[#7CFF6B]">
-            OPERATOR IDENTITY PROTOCOL
+            {t.identityModal.title}
           </h2>
         </div>
 
         <p className="font-mono text-xs text-[#8F959E] mb-5 leading-relaxed">
-          Configure your station handle. This callsign will be registered to local records and the global operator leaderboard.
+          {t.identityModal.desc}
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block font-mono text-xs text-[#73777D] uppercase mb-1.5">
-              CALLSIGN IDENTIFIER
+              {t.identityModal.callsignField}
             </label>
             <div className="relative">
               <span className="absolute left-3 top-2.5 font-mono text-xs text-[#525862]">OP_</span>
@@ -58,17 +60,17 @@ export function OperatorIdentityModal({ onClose }: { onClose: () => void }) {
               />
             </div>
             <p className="font-mono text-[10px] text-[#555B64] mt-1">
-              Max 16 characters (letters, numbers, underscore, hyphens).
+              {t.identityModal.fieldHint}
             </p>
           </div>
 
           <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#1C222A]">
             <Button type="button" variant="ghost" size="sm" onClick={onClose}>
-              CANCEL
+              {t.common.cancel}
             </Button>
             <Button type="submit" variant="primary" size="sm" disabled={isSubmitting || !callsign.trim()}>
               <UserCheck className="w-3.5 h-3.5" />
-              CONFIRM IDENTITY
+              {t.identityModal.confirmBtn}
             </Button>
           </div>
         </form>

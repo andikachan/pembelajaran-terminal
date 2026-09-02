@@ -3,10 +3,12 @@
 import React, { useState } from 'react';
 import { MissionHint } from '@/lib/types';
 import { Button } from '@/components/ui/Button';
-import { HelpCircle, AlertTriangle, Eye } from 'lucide-react';
+import { HelpCircle, Eye } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface HintDrawerProps {
   hints: MissionHint[];
+  localizedHintTexts?: string[];
   hintsRevealed: number;
   onRevealHint: (hintIndex: number) => void;
   currentXpReward: number;
@@ -14,11 +16,13 @@ interface HintDrawerProps {
 
 export function HintDrawer({
   hints,
+  localizedHintTexts,
   hintsRevealed,
   onRevealHint,
   currentXpReward,
 }: HintDrawerProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const { t } = useLanguage();
 
   const canRevealNext = hintsRevealed < hints.length;
   const nextHint = canRevealNext ? hints[hintsRevealed] : null;
@@ -32,12 +36,12 @@ export function HintDrawer({
         <div className="flex items-center gap-2">
           <HelpCircle className="w-3.5 h-3.5 text-[#FFC857]" />
           <span className="font-semibold text-white tracking-wider text-[11px] uppercase">
-            HINT SYSTEM ({hintsRevealed}/{hints.length})
+            {t.missionHUD.hintSystem} ({hintsRevealed}/{hints.length})
           </span>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-[10px] text-[#FFC857] font-semibold">
-            REWARD: +{currentXpReward} XP
+            {t.missionHUD.reward}: +{currentXpReward} XP
           </span>
         </div>
       </div>
@@ -46,23 +50,27 @@ export function HintDrawer({
         <div className="p-3 space-y-3">
           {hintsRevealed === 0 && (
             <p className="text-[11px] text-[#73777D] leading-relaxed italic">
-              Need assistance? Revealing hints will deduct XP from the mission bounty.
+              {t.missionHUD.hintDesc}
             </p>
           )}
 
           {/* List revealed hints */}
-          {hints.slice(0, hintsRevealed).map((hint, idx) => (
-            <div
-              key={hint.id}
-              className="p-2.5 bg-[#14181E] border border-[#27303B] text-[#D4D8E0] space-y-1"
-            >
-              <div className="flex items-center justify-between text-[10px] font-bold text-[#FFC857]">
-                <span>HINT #{idx + 1}</span>
-                <span className="text-[#FF5C5C]">-{hint.xpPenalty} XP</span>
+          {hints.slice(0, hintsRevealed).map((hint, idx) => {
+            const hintText = localizedHintTexts?.[idx] || hint.text;
+
+            return (
+              <div
+                key={hint.id}
+                className="p-2.5 bg-[#14181E] border border-[#27303B] text-[#D4D8E0] space-y-1"
+              >
+                <div className="flex items-center justify-between text-[10px] font-bold text-[#FFC857]">
+                  <span>{t.missionHUD.hintNum} #{idx + 1}</span>
+                  <span className="text-[#FF5C5C]">-{hint.xpPenalty} XP</span>
+                </div>
+                <p className="text-xs text-[#E6E6E6]">{hintText}</p>
               </div>
-              <p className="text-xs text-[#E6E6E6]">{hint.text}</p>
-            </div>
-          ))}
+            );
+          })}
 
           {/* Button to unlock next hint */}
           {canRevealNext && nextHint && (
@@ -75,7 +83,7 @@ export function HintDrawer({
               >
                 <Eye className="w-3.5 h-3.5" />
                 <span>
-                  REVEAL HINT {hintsRevealed + 1} (-{nextHint.xpPenalty} XP)
+                  {t.missionHUD.revealHint} {hintsRevealed + 1} (-{nextHint.xpPenalty} XP)
                 </span>
               </Button>
             </div>
@@ -83,7 +91,7 @@ export function HintDrawer({
 
           {hintsRevealed >= hints.length && (
             <div className="text-[10px] text-[#5A606A] text-center font-mono">
-              All tactical hints for this mission have been unlocked.
+              {t.missionHUD.allHintsUnlocked}
             </div>
           )}
         </div>

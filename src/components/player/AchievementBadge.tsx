@@ -3,6 +3,7 @@
 import React from 'react';
 import { Achievement } from '@/lib/types';
 import { Terminal, Compass, FolderPlus, Search, Sparkles, Moon, Flame, Eraser, Cpu, Trophy, Zap, Award, Lock } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 const ICON_MAP: Record<string, any> = {
   Terminal,
@@ -26,7 +27,12 @@ export function AchievementBadge({
   achievement: Achievement;
   unlocked?: boolean;
 }) {
+  const { getAchievementText } = useLanguage();
+  const loc = getAchievementText(achievement.id);
+
   const IconComponent = ICON_MAP[achievement.icon] || Award;
+  const name = loc?.name || achievement.name;
+  const description = loc?.description || achievement.description;
 
   return (
     <div
@@ -53,14 +59,14 @@ export function AchievementBadge({
               unlocked ? 'text-[#7CFF6B]' : 'text-[#73777D]'
             }`}
           >
-            {achievement.name}
+            {name}
           </h4>
           <span className="font-mono text-[10px] text-[#FFC857] shrink-0 font-semibold">
             +{achievement.xpReward} XP
           </span>
         </div>
         <p className="font-mono text-[11px] text-[#868C96] mt-0.5 leading-snug">
-          {achievement.description}
+          {description}
         </p>
       </div>
     </div>
