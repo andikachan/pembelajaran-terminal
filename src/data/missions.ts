@@ -140,9 +140,9 @@ export const MISSIONS: Mission[] = [
     order: 8,
     title: 'Read the File',
     scenario: 'An orientation dossier "mission_brief.txt" is stored in Documents. Inspect its content on the standard output.',
-    objective: 'Output the contents of "mission_brief.txt" without opening an editor.',
-    tip: "'cat' (concatenate) prints entire file contents to the screen.",
-    expectedCommands: ['cat mission_brief.txt', 'cat Documents/mission_brief.txt', 'cat /home/player/Documents/mission_brief.txt'],
+    objective: 'Output the contents of "mission_brief.txt" inside Documents without opening an editor.',
+    tip: "Use 'cat Documents/mission_brief.txt' or 'cd Documents' first.",
+    expectedCommands: ['cat Documents/mission_brief.txt', 'cat mission_brief.txt', 'cat /home/player/Documents/mission_brief.txt'],
     xp: 150,
     difficulty: 'medium',
     hints: [

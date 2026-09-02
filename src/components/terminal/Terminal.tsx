@@ -81,7 +81,7 @@ export function Terminal({
   const [isMaximized, setIsMaximized] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
-  const terminalEndRef = useRef<HTMLDivElement>(null);
+  const outputAreaRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const { playKeyClick, playSubmit, playError } = useSound();
 
@@ -90,17 +90,20 @@ export function Terminal({
 
   useEffect(() => {
     if (autoFocus && inputRef.current) {
-      inputRef.current.focus();
+      inputRef.current.focus({ preventScroll: true });
     }
   }, [autoFocus]);
 
+  // Scroll ONLY the internal terminal box to bottom when new command lines arrive, never while typing
   useEffect(() => {
-    terminalEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [lines, input]);
+    if (outputAreaRef.current) {
+      outputAreaRef.current.scrollTop = outputAreaRef.current.scrollHeight;
+    }
+  }, [lines]);
 
   const handleContainerClick = () => {
     if (!readOnly && inputRef.current) {
-      inputRef.current.focus();
+      inputRef.current.focus({ preventScroll: true });
     }
   };
 
@@ -322,7 +325,10 @@ export function Terminal({
       </div>
 
       {/* Terminal Output Area */}
-      <div className="flex-1 p-3.5 overflow-y-auto space-y-1.5 font-mono text-xs sm:text-sm text-[#E6E6E6] leading-relaxed">
+      <div
+        ref={outputAreaRef}
+        className="flex-1 p-3.5 overflow-y-auto space-y-1.5 font-mono text-xs sm:text-sm text-[#E6E6E6] leading-relaxed"
+      >
         {lines.map((line) => (
           <div key={line.id} className="break-words">
             {line.type === 'command' && (
@@ -406,7 +412,6 @@ export function Terminal({
           </div>
         )}
 
-        <div ref={terminalEndRef} />
       </div>
 
       {/* Terminal Footer Quick Bar */}

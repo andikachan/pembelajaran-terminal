@@ -474,10 +474,10 @@ export const LOCALIZED_MISSIONS: Record<Language, Record<string, LocalizedMissio
     'mission-08': {
       title: 'Read the File',
       scenario: 'An orientation dossier "mission_brief.txt" is stored in Documents. Inspect its content on the standard output.',
-      objective: 'Output the contents of "mission_brief.txt" without opening an editor.',
-      tip: "'cat' (concatenate) prints entire file contents to the screen.",
+      objective: 'Output the contents of "mission_brief.txt" inside Documents using the cat command.',
+      tip: "Use 'cat Documents/mission_brief.txt' or navigate inside with 'cd Documents' first.",
       hints: [
-        'Use the feline-named command: cat <filename>',
+        'Use cat with the target folder: cat Documents/mission_brief.txt',
         'If in Documents: cat mission_brief.txt | Otherwise: cat Documents/mission_brief.txt',
       ],
       completionMessage: 'Dossier parsed! Briefing instructions stored in memory.',
@@ -702,11 +702,11 @@ Intel reports:
     'mission-08': {
       title: 'Baca Dokumen',
       scenario: 'Dossier orientasi "mission_brief.txt" tersimpan di folder Documents. Baca isinya langsung di layar terminal.',
-      objective: 'Tampilkan isi file "mission_brief.txt" tanpa membuka teks editor.',
-      tip: "'cat' (concatenate) mencetak seluruh isi file ke layar terminal.",
+      objective: 'Tampilkan isi file "mission_brief.txt" yang berada di folder Documents menggunakan perintah cat.',
+      tip: "Gunakan 'cat Documents/mission_brief.txt' atau masuk ke folder tujuan dengan 'cd Documents' terlebih dahulu.",
       hints: [
-        'Gunakan perintah kucing: cat <nama_file>',
-        'Jika di dalam Documents: cat mission_brief.txt | Atau: cat Documents/mission_brief.txt',
+        'File berada di dalam subfolder Documents.',
+        'Ketik: cat Documents/mission_brief.txt (atau cd Documents lalu cat mission_brief.txt)',
       ],
       completionMessage: 'Dossier terbaca! Arahan briefing tersimpan di memori.',
     },
